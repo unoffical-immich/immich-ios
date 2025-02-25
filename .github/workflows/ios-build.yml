@@ -64,12 +64,15 @@ jobs:
         run: yarn install; yarn postinstall
 
       - name: Pod Install
+        working-directory: ./mobile
         run: cd ios && rm Podfile.lock && pod install --repo-update
 
       - name: build
+        working-directory: ./mobile
         run: cd ios && xcodebuild -scheme APM -workspace example.xcworkspace -configuration Release clean archive -archivePath "build/APM.xcarchive" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: archive to ipa
+        working-directory: ./mobile
         run: |
           cd ios
           mkdir build/Payload
@@ -81,13 +84,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: immich-test.ipa
-          path: ios/build/immich-test.ipa
+          path: ./mobile/ios/build/immich-test.ipa
 
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.GIT_BRANCH }}-build-${{ steps.date.outputs.date }}
-          files: ios/build/immich-test.ipa
+          files: ./mobile/ios/build/immich-test.ipa
           prerelease: true
           target_commitish: ${{ env.GIT_BRANCH }}
