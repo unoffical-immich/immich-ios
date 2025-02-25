@@ -34,10 +34,10 @@ jobs:
         run: echo "should_force=${{ github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch' }}" >> "$GITHUB_OUTPUT"
 
   build-sign-android:
-    name: Build and sign Android
+    name: Build iOS
     needs: pre-job
     # Skip when PR from a fork
-    if: ${{ !github.event.pull_request.head.repo.fork && github.actor != 'dependabot[bot]' && needs.pre-job.outputs.should_run == 'true' }}
+#    if: ${{ !github.event.pull_request.head.repo.fork && github.actor != 'dependabot[bot]' && needs.pre-job.outputs.should_run == 'true' }}
     runs-on: macos-14
 
     steps:
@@ -76,15 +76,14 @@ jobs:
         working-directory: ./mobile
         run: flutter pub get
 
-      - name: Build Android App Bundle
+      - name: Build iOS App Bundle
         working-directory: ./mobile
         env:
           ALIAS: ${{ secrets.ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         run: |
-          flutter build apk --release
-          flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64,android-x64
+          flutter build ipa
 
       - name: Publish Android Artifact
         uses: actions/upload-artifact@v4
